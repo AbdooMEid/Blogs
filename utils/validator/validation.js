@@ -24,3 +24,9 @@ exports.registerValidator = [
     .withMessage("user password max length is 100 letters"),
   validator,
 ];
+
+exports.loginValidator = [
+  check("email").notEmpty().withMessage("please enter your name "),
+  check("password").notEmpty().withMessage("please enter your password"),
+  validator,
+];
