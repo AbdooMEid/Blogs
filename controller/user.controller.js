@@ -38,7 +38,7 @@ exports.login = asyncHandler(async (req, res, next) => {
     { id: user._id, email: user.email, name: user.name, role: user.role },
     process.env.JWT_SECRET
   );
-  if (user.role === true) {
+  if (user.role === "admin") {
     return res
       .status(200)
       .header("token", token)

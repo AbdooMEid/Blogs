@@ -1,7 +1,7 @@
 const ApiError = require("../error/apiError");
 
 const admin = (req, res, next) => {
-  if (!req.role) {
+  if (req.role === "user") {
     return next(new ApiError("you are not admin user....", 403));
   }
   next();

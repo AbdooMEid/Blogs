@@ -6,7 +6,7 @@ const helmet = require("helmet");
 const ApiError = require("./error/apiError");
 const globalError = require("./middleware/globalError");
 const dbConnection = require("./config/dbConnection");
-
+const admin = require("./auth/admin");
 env.config({ path: "config.env" });
 app.use(helmet());
 if (process.env.PROJECT === "development") {
@@ -21,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 
 //route Mount
 app.use("/api/v1/user", require("./routes/user.routes"));
+app.use("/api/v1/posts", require("./routes/post.routes"));
 //handler Error
 app.all("*", (req, res, next) => {
   next(new ApiError(`this route is Not Found ${req.originalUrl}`, 404));
