@@ -3,13 +3,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 const env = require("dotenv");
 const helmet = require("helmet");
+const morgan = require("morgan");
 const ApiError = require("./error/apiError");
 const globalError = require("./middleware/globalError");
 const dbConnection = require("./config/dbConnection");
-const admin = require("./auth/admin");
 env.config({ path: "config.env" });
 app.use(helmet());
-if (process.env.PROJECT === "development") {
+if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
   console.log(`mode : ${process.env.NODE_ENV} `);
 }

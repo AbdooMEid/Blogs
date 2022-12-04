@@ -7,7 +7,7 @@ const auth = (req, res, next) => {
     jwt.verify(token, process.env.JWT_SECRET, (err, decode) => {
       if (err) return next(new ApiError("token not valid!!!!", 401));
       req.email = decode.email;
-      req.id = decode.id;
+      req._id = decode.id;
       req.name = decode.name;
       req.role = decode.role;
       next();
