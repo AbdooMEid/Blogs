@@ -1,15 +1,16 @@
 const bcrypt = require("bcrypt");
 const userModel = require("../model/userModel");
 const ApiError = require("../error/apiError");
-const asyncHandler = require("express-async-handler");
+const { asyncHandller } = require("../utils/asyncHandler");
 const jwt = require("jsonwebtoken");
-exports.register = asyncHandler(async (req, res, next) => {
+
+exports.register = asyncHandller(async (req, res, next) => {
   const { name, email, password } = req.body;
   const user = await userModel.findOne({ email });
   if (user) {
     return next(new ApiError("user email is already  exists", 401));
   }
-  const saltRound = 10;
+  const saltRound = Number(process.env.SALT_ROUND);
   const salt = await bcrypt.genSalt(saltRound);
   const passwordHash = await bcrypt.hash(password, salt);
 
@@ -24,7 +25,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.login = asyncHandler(async (req, res, next) => {
+exports.login = asyncHandller(async (req, res, next) => {
   const { email, password } = req.body;
   const user = await userModel.findOne({ email });
   if (!user) {

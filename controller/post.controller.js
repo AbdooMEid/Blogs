@@ -1,17 +1,17 @@
 const postModel = require("../model/postModel");
+const { asyncHandller } = require("../utils/asyncHandler");
 const ApiError = require("../error/apiError");
-const asyncHandler = require("express-async-handler");
 
-exports.createPost = asyncHandler(async (req, res, next) => {
+exports.createPost = asyncHandller(async (req, res, next) => {
   const { title, body } = req.body;
   if (!title || !body) {
     return next(new ApiError("not allowed empty fild", 401));
   }
   const post = await postModel.insertMany({
-    userId: req._id,
+    userId: req.user._id,
     title,
     body,
-    createdBy: [{ email: req.email, role: req.role }],
+    createdBy: [{ email: req.user.email, role: req.user.role }],
   });
   res.status(201).json({
     success: true,
@@ -19,12 +19,11 @@ exports.createPost = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.getPosts = asyncHandler(async (req, res, next) => {
-  const posts = await postModel.findOne({ userId: req._id });
+exports.getPosts = asyncHandller(async (req, res, next) => {
+  const posts = await postModel.findOne({ userId: req.user._id });
   if (posts === null || posts === undefined) {
     return next(new ApiError("notFound", 404));
   }
-  console.log(posts.status);
   if (posts.status === "PENDING") {
     return res.status(401).json({
       success: false,
@@ -43,7 +42,7 @@ exports.getPosts = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.getPostAdmin = asyncHandler(async (req, res, next) => {
+exports.getPostAdmin = asyncHandller(async (req, res, next) => {
   const { id } = req.params;
   const posts = await postModel.findOne({ _id: id });
   if (posts === null || posts === undefined) {
@@ -51,7 +50,8 @@ exports.getPostAdmin = asyncHandler(async (req, res, next) => {
   }
   res.status(200).json({ success: true, data: posts });
 });
-exports.updatePostByUser = asyncHandler(async (req, res, next) => {
+
+exports.updatePostByUser = asyncHandller(async (req, res, next) => {
   const { title, body } = req.body;
   const { id } = req.params;
   const post = await postModel.findOne({ _id: id });
@@ -63,14 +63,16 @@ exports.updatePostByUser = asyncHandler(async (req, res, next) => {
     {
       title,
       body,
-    }
+    },
+    { new: true }
   );
   res.status(200).json({
     success: true,
     data: "Updated",
   });
 });
-exports.updatePostByAdmin = asyncHandler(async (req, res, next) => {
+
+exports.updatePostByAdmin = asyncHandller(async (req, res, next) => {
   const { status } = req.body;
   const { id } = req.params;
   const post = await postModel.findOne({ _id: id });
@@ -81,7 +83,8 @@ exports.updatePostByAdmin = asyncHandler(async (req, res, next) => {
     { _id: id },
     {
       status,
-    }
+    },
+    { new: true }
   );
   res.status(200).json({
     success: true,
@@ -89,23 +92,23 @@ exports.updatePostByAdmin = asyncHandler(async (req, res, next) => {
   });
 });
 
-exports.deletePostByUser = asyncHandler(async (req, res, next) => {
+exports.deletePostByUser = asyncHandller(async (req, res, next) => {
   const { id } = req.params;
   const post = await postModel.findOne({ _id: id });
   if (!post) {
     return next(new ApiError("Not Found", 404));
   }
-  await postModel.findByIdAndDelete({ _id: id });
+  await postModel.findByIdAndDelete({ _id: id }, { new: true });
   res.status(200).json({ success: true, data: "Deleted" });
 });
 
-exports.deletePostByAdmin = asyncHandler(async (req, res, next) => {
+exports.deletePostByAdmin = asyncHandller(async (req, res, next) => {
   const { id } = req.params;
   const post = await postModel.findOne({ _id: id });
   if (!post) {
     return next(new ApiError("not Found", 404));
   } else if (post.status === "REJECTED") {
-    await postModel.findByIdAndDelete({ _id: id });
+    await postModel.findByIdAndDelete({ _id: id }, { new: true });
     res
       .status(200)
       .json({ success: true, data: "Deleted By Admin becuse Rejected Post" });

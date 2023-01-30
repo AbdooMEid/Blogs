@@ -1,3 +1,6 @@
+process.on("uncaughtException", (err) => {
+  console.error(`uncaughtException : ${err.message} || ${err.stack}`);
+});
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;

@@ -8,15 +8,15 @@ const {
   deletePostByUser,
   deletePostByAdmin,
 } = require("../controller/post.controller");
-const auth = require("../auth/auth");
-const admin = require("../auth/admin");
+const { auth } = require("../auth/auth");
+const { AllwoedTo } = require("../auth/admin");
 
-router.route("/").post(auth, createPost);
-router.route("/").get(auth, getPosts);
+router.route("/").post(auth, AllwoedTo("user"), createPost);
+router.route("/").get(auth, AllwoedTo("user"), getPosts);
 router.route("/:id").put(auth, updatePostByUser);
-router.route("/admin/:id").get(auth, admin, getPostAdmin);
-router.route("/admin/:id").put(auth, admin, updatePostByAdmin);
-router.route("/:id").delete(auth, deletePostByUser);
-router.route("/admin/:id").delete(auth, admin, deletePostByAdmin);
+router.route("/admin/:id").get(auth, AllwoedTo("admin"), getPostAdmin);
+router.route("/admin/:id").put(auth, AllwoedTo("admin"), updatePostByAdmin);
+router.route("/:id").delete(auth, AllwoedTo("user"), deletePostByUser);
+router.route("/admin/:id").delete(auth, AllwoedTo("admin"), deletePostByAdmin);
 
 module.exports = router;
